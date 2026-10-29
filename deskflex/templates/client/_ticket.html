@@ -1,0 +1,23 @@
+{% from "_icons.html" import icon %}
+{% macro ticket(r, pasado=false, csrf='') -%}
+<article class="ticket{% if pasado %} ticket--past{% endif %}">
+  <div class="ticket-main">
+    <div class="ticket-top"><span class="folio">{{ r.folio }}</span><span class="badge badge--{{ r.estado_clave }}">{{ r.estado_txt }}</span></div>
+    <h3>{{ r.espacio }}</h3>
+    <div class="ticket-meta">
+      <span>{{ icon('calendar', 17) }}{{ r.fecha|fecha }}</span>
+      <span>{{ icon('clock', 17) }}{{ r|rango }}{% if r.modo == 'dia' %} · día completo{% endif %}</span>
+    </div>
+  </div>
+  <a class="ticket-qr" href="{{ url_for('client.reserva', folio=r.folio) }}" aria-label="Ver código QR de la reserva {{ r.folio }}">{{ r.qr|safe }}</a>
+  <div class="ticket-foot">
+    <a class="btn btn--outline btn--sm" href="{{ url_for('client.reserva', folio=r.folio) }}">{{ icon('qr', 17) }} Ver pase de acceso</a>
+    {% if r.estado_clave == 'confirmada' %}
+    <form method="post" action="{{ url_for('client.cancelar', folio=r.folio) }}" data-confirm="Se liberará {{ r.espacio }} el {{ r.fecha|fecha_corta }} y tu código QR dejará de funcionar." data-confirm-title="¿Cancelar la reserva {{ r.folio }}?" data-confirm-ok="Sí, cancelar">
+      <input type="hidden" name="csrf_token" value="{{ csrf }}">
+      <button class="btn btn--ghost btn--sm" type="submit">Cancelar</button>
+    </form>
+    {% endif %}
+  </div>
+</article>
+{%- endmacro %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}Mi perfil{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Mi perfil</h1></div>
+<section class="card" style="max-width:760px">
+  <div class="profile-head">
+    <span class="avatar avatar--lg">{{ user.nombre|iniciales }}</span>
+    <div><h2>{{ user.nombre }}</h2><p class="muted">{{ 'Administrador' if user.rol == 'admin' else 'Cliente DeskFlex' }} · miembro desde {{ user.creado_en[:10]|fecha }}</p></div>
+  </div>
+  <h3 style="margin-bottom:16px">Datos personales</h3>
+  <dl class="data-grid">
+    <div><dt>{{ icon('user', 16) }} Nombre</dt><dd>{{ user.nombre }}</dd></div>
+    <div><dt>{{ icon('phone', 16) }} Teléfono</dt><dd>{{ user.telefono }}</dd></div>
+    <div><dt>{{ icon('mail', 16) }} Correo</dt><dd>{{ user.correo }}</dd></div>
+  </dl>
+  <div style="display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-top:32px">
+    <a class="btn btn--outline" href="{{ url_for('client.perfil_editar') }}">{{ icon('edit', 18) }} Editar perfil</a>
+    <a class="btn btn--primary" href="{{ url_for('auth.raiz') }}">Inicio</a>
+  </div>
+</section>
+{% endblock %}

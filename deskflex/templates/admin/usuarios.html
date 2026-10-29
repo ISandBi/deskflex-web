@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}Usuarios{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Usuarios</h1><p>Administra las cuentas de clientes y del personal.</p></div></div>
+<div class="toolbar">
+  <form method="get" class="input-icon" role="search">
+    {{ icon('search', 19) }}
+    <input class="input" type="search" name="q" value="{{ q }}" placeholder="Buscar por nombre, correo o teléfono…" aria-label="Buscar usuarios">
+  </form>
+</div>
+<div class="table-wrap">
+  {% if filas %}
+  <table class="table">
+    <thead><tr><th>Nombre</th><th>Correo</th><th>Teléfono</th><th>Reservas</th><th>Estado</th><th class="col-actions">Acciones</th></tr></thead>
+    <tbody>
+    {% for u in filas %}
+      <tr class="{{ 'is-off' if not u.activo }}">
+        <td data-label="Nombre"><div class="who"><span class="avatar">{{ u.nombre|iniciales }}</span><div><b>{{ u.nombre }}</b>{% if u.rol == 'admin' %}<span>Administrador</span>{% endif %}</div></div></td>
+        <td data-label="Correo">{{ u.correo }}</td>
+        <td data-label="Teléfono">{{ u.telefono }}</td>
+        <td data-label="Reservas">{{ u.n_reservas }}</td>
+        <td data-label="Estado"><span class="badge badge--{{ 'activo' if u.activo else 'inactivo' }}">{{ 'Activo' if u.activo else 'Inactivo' }}</span></td>
+        <td class="col-actions"><span class="actions">
+          <button type="button" class="icon-btn" aria-label="Editar a {{ u.nombre }}" title="Editar" data-edit-usuario
+            data-action="{{ url_for('admin.usuario_editar', uid=u.id) }}" data-nombre="{{ u.nombre }}" data-telefono="{{ u.telefono }}" data-activo="{{ u.activo }}" data-correo="{{ u.correo }}">{{ icon('edit', 18) }}</button>
+          {% if u.rol != 'admin' %}
+          <form method="post" action="{{ url_for('admin.usuario_eliminar', uid=u.id) }}" data-confirm="Se eliminará su cuenta y sus {{ u.n_reservas }} reserva(s) activa(s). Esta acción no se puede deshacer." data-confirm-title="¿Eliminar a {{ u.nombre }}?" data-confirm-ok="Sí, eliminar">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button class="icon-btn icon-btn--danger" type="submit" aria-label="Eliminar a {{ u.nombre }}" title="Eliminar">{{ icon('trash', 18) }}</button>
+          </form>
+          {% endif %}
+        </span></td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty"><span class="ic-big">{{ icon('users', 26) }}</span><b>No encontramos usuarios</b><p>Prueba con otra búsqueda.</p></div>
+  {% endif %}
+</div>
+
+<dialog id="edit-usuario" aria-labelledby="eu-t">
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="modal-body">
+      <h2 id="eu-t">Editar usuario</h2>
+      <p class="muted" id="eu-correo" style="margin-bottom:18px"></p>
+      <div class="field"><label for="eu-nombre">Nombre completo</label><input class="input" id="eu-nombre" name="nombre" required></div>
+      <div class="form-row">
+        <div class="field"><label for="eu-tel">Teléfono</label><input class="input" id="eu-tel" name="telefono" inputmode="numeric" required></div>
+        <div class="field"><label for="eu-activo">Estado</label><select class="select" id="eu-activo" name="activo"><option value="1">Activo</option><option value="0">Inactivo</option></select></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button type="button" class="btn btn--ghost" data-close>Cancelar</button><button class="btn btn--primary" type="submit">Guardar cambios</button></div>
+  </form>
+</dialog>
+{% endblock %}

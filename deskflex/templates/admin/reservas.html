@@ -1,0 +1,76 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}Reservas{% endblock %}
+{% block content %}
+<div class="page-head"><div><h1>Reservas</h1><p>Consulta, reprograma o cancela las reservas de los clientes.</p></div></div>
+<div class="toolbar">
+  <form method="get" class="input-icon" role="search">
+    {{ icon('search', 19) }}
+    <input class="input" type="search" name="q" value="{{ q }}" placeholder="Buscar por folio, cliente o espacio…" aria-label="Buscar reservas">
+    <input type="hidden" name="ver" value="{{ ver }}">
+  </form>
+  <nav class="seg-link" aria-label="Filtrar">
+    {% for k, l in [('proximas','Próximas'),('todas','Todas'),('canceladas','Canceladas')] %}
+      <a href="{{ url_for('admin.reservas', ver=k, q=q or None) }}" {% if ver == k %}aria-current="true"{% endif %}>{{ l }}</a>
+    {% endfor %}
+  </nav>
+</div>
+<div class="table-wrap">
+  {% if filas %}
+  <table class="table">
+    <thead><tr><th>Folio</th><th>Nombre cliente</th><th>Espacio</th><th>Fecha</th><th>Hora</th><th>Estado</th><th class="col-actions">Acciones</th></tr></thead>
+    <tbody>
+    {% for r in filas %}
+      <tr class="{{ 'is-off' if r.estado == 'cancelada' }}">
+        <td data-label="Folio"><span class="folio">{{ r.folio }}</span></td>
+        <td data-label="Cliente"><b>{{ r.cliente }}</b></td>
+        <td data-label="Espacio">{{ r.espacio }}</td>
+        <td data-label="Fecha">{{ r.fecha|fecha_corta }}</td>
+        <td data-label="Hora">{{ 'Día completo' if r.modo == 'dia' else (r|rango) }}</td>
+        <td data-label="Estado"><span class="badge badge--{{ r.estado_clave }}">{{ r.estado_txt }}</span></td>
+        <td class="col-actions">
+          {% if r.estado == 'confirmada' %}
+          <span class="actions">
+            <button type="button" class="icon-btn" aria-label="Editar reserva {{ r.folio }}" title="Editar"
+              data-edit-reserva data-action="{{ url_for('admin.reserva_editar', rid=r.id) }}" data-folio="{{ r.folio }}"
+              data-espacio="{{ r.esp_numero }}" data-fecha="{{ r.fecha }}" data-modo="{{ r.modo }}" data-ini="{{ r.hora_inicio }}" data-fin="{{ r.hora_fin }}">{{ icon('edit', 18) }}</button>
+            <form method="post" action="{{ url_for('admin.reserva_cancelar', rid=r.id) }}" data-confirm="Se liberará {{ r.espacio }} y el QR de {{ r.cliente }} dejará de funcionar." data-confirm-title="¿Cancelar la reserva {{ r.folio }}?" data-confirm-ok="Sí, cancelar">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="icon-btn icon-btn--danger" type="submit" aria-label="Cancelar reserva {{ r.folio }}" title="Cancelar">{{ icon('trash', 18) }}</button>
+            </form>
+          </span>
+          {% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+    </tbody>
+  </table>
+  {% else %}
+  <div class="empty"><span class="ic-big">{{ icon('search', 26) }}</span><b>No hay reservas que mostrar</b><p>Prueba con otra búsqueda o cambia el filtro.</p></div>
+  {% endif %}
+</div>
+
+<dialog id="edit-reserva" aria-labelledby="er-t">
+  <form method="post">
+    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+    <div class="modal-body">
+      <h2 id="er-t">Editar reserva <span class="mono" id="er-folio"></span></h2>
+      <p class="muted" style="margin-bottom:18px">Validamos que el espacio esté libre antes de guardar.</p>
+      <div class="field"><label for="er-espacio">Espacio</label>
+        <select class="select" id="er-espacio" name="espacio">{% for e in espacios %}<option value="{{ e.numero }}">{{ e.nombre }}</option>{% endfor %}</select></div>
+      <div class="form-row">
+        <div class="field"><label for="er-fecha">Fecha</label><input class="input" type="date" id="er-fecha" name="fecha" required></div>
+        <div class="field"><label for="er-modo">Tipo</label>
+          <select class="select" id="er-modo" name="modo"><option value="hora">Por hora</option><option value="dia">Día completo</option></select></div>
+      </div>
+      <div class="form-row" id="er-horas">
+        <div class="field"><label for="er-ini">Desde</label>
+          <select class="select" id="er-ini" name="inicio">{% for h in range(apertura, cierre) %}<option value="{{ h }}">{{ h|hora }}</option>{% endfor %}</select></div>
+        <div class="field"><label for="er-fin">Hasta</label>
+          <select class="select" id="er-fin" name="fin">{% for h in range(apertura + 1, cierre + 1) %}<option value="{{ h }}">{{ h|hora }}</option>{% endfor %}</select></div>
+      </div>
+    </div>
+    <div class="modal-foot"><button type="button" class="btn btn--ghost" data-close>Cancelar</button><button class="btn btn--primary" type="submit">Guardar cambios</button></div>
+  </form>
+</dialog>
+{% endblock %}

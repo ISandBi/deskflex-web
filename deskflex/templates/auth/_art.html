@@ -1,0 +1,14 @@
+{% from "_icons.html" import icon %}
+{% from "_plano.html" import plano %}
+<aside class="auth-art" aria-hidden="false">
+  <div>
+    <p class="eyebrow" style="color:#5EEAD4">Coworking · Ciudad de México</p>
+    <h2 style="margin-top:14px">Tu espacio de trabajo, <em>cuando lo necesites</em></h2>
+  </div>
+  {{ plano(mapa.FORMAS, ART_ESPACIOS, {1:'ocupado', 4:'ocupado', 12:'ocupado', 16:'ocupado', 21:'ocupado', 6:'sel'}, clase='plano--art', uid='art') }}
+  <ul class="auth-points">
+    <li>{{ icon('map', 20) }} Mapa del coworking con disponibilidad al momento</li>
+    <li>{{ icon('zap', 20) }} Reserva por hora o por día en segundos</li>
+    <li>{{ icon('qr', 20) }} Entra con tu código QR, sin filas ni papeles</li>
+  </ul>
+</aside>

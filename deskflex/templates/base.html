@@ -1,0 +1,82 @@
+{% from "_icons.html" import icon %}
+<!doctype html>
+<html lang="es-MX">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0F172A">
+  <title>{% block title %}{% endblock %} · DeskFlex México</title>
+  <link rel="icon" type="image/png" href="{{ url_for('static', filename='img/favicon.png') }}">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700;12..96,800&family=IBM+Plex+Mono:wght@500;600&family=Manrope:wght@500;600;700;800&display=swap">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/deskflex.css') }}">
+  {% block head %}{% endblock %}
+</head>
+{% set es_admin = user and user.rol == 'admin' %}
+<body class="{% if user %}has-tabbar{% endif %}">
+<a class="skip" href="#contenido">Saltar al contenido</a>
+{% block shell %}
+{% if es_admin %}
+  {% set links = [('admin.dashboard','Dashboard','dashboard',['admin.dashboard']),
+                  ('admin.reservas','Reservas','list',['admin.reservas']),
+                  ('admin.usuarios','Usuarios','users',['admin.usuarios']),
+                  ('admin.checkin','Check-in','scan',['admin.checkin'])] %}
+{% else %}
+  {% set links = [('client.inicio','Inicio','home',['client.inicio']),
+                  ('client.reservar','Reservar','map',['client.reservar']),
+                  ('client.mis_reservas','Mis reservas','qr',['client.mis_reservas','client.reserva'])] %}
+{% endif %}
+<header class="topbar{% if es_admin %} topbar--admin{% endif %}">
+  <div class="wrap">
+    <a class="brand" href="{{ url_for('auth.raiz') }}" aria-label="DeskFlex México, inicio">
+      <img src="{{ url_for('static', filename='img/logo-mark-light.png' if es_admin else 'img/logo-mark.png') }}" alt="" width="36" height="39">
+      <span><b>DeskFlex</b><small>México</small></span>
+      {% if es_admin %}<span class="role-tag">ADMIN</span>{% endif %}
+    </a>
+    <nav class="nav" aria-label="Principal">
+      {% for ep, label, ic, activos in links %}
+        <a href="{{ url_for(ep) }}" {% if endpoint in activos %}aria-current="page"{% endif %}>{{ label }}</a>
+      {% endfor %}
+    </nav>
+    <details class="userbtn">
+      <summary aria-label="Menú de usuario">
+        <span class="avatar">{{ user.nombre|iniciales }}</span>{{ icon('chev-d', 16) }}
+      </summary>
+      <div class="menu">
+        <div class="who"><b>{{ user.nombre }}</b><span>{{ user.correo }}</span></div>
+        <a href="{{ url_for('client.perfil') }}">{{ icon('user', 18) }} Mi perfil</a>
+        <form method="post" action="{{ url_for('auth.salir') }}">
+          <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+          <button type="submit">{{ icon('logout', 18) }} Cerrar sesión</button>
+        </form>
+      </div>
+    </details>
+  </div>
+</header>
+<nav class="tabbar{% if es_admin %} tabbar--admin{% endif %}" aria-label="Navegación móvil">
+  {% for ep, label, ic, activos in links %}
+    <a href="{{ url_for(ep) }}" {% if endpoint in activos %}aria-current="page"{% endif %}>{{ icon(ic, 22) }}{{ label.split(' ')[-1] if label == 'Mis reservas' else label }}</a>
+  {% endfor %}
+  <a href="{{ url_for('client.perfil') }}" {% if endpoint.startswith('client.perfil') %}aria-current="page"{% endif %}>{{ icon('user', 22) }}Perfil</a>
+</nav>
+<main id="contenido" class="wrap">
+  {% include "_flash.html" %}
+  {% block content %}{% endblock %}
+</main>
+<footer class="footer"><div class="wrap">© 2026 DeskFlex México · Sistema de control de acceso y reservas · CDMX</div></footer>
+{% endblock %}
+
+<dialog id="confirm-dialog" aria-labelledby="confirm-title">
+  <form method="dialog">
+    <div class="modal-body"><h2 id="confirm-title">¿Confirmas?</h2><p class="muted" id="confirm-text"></p></div>
+    <div class="modal-foot">
+      <button class="btn btn--ghost" value="cancel">Volver</button>
+      <button class="btn btn--danger" value="ok" id="confirm-ok">Confirmar</button>
+    </div>
+  </form>
+</dialog>
+<script src="{{ url_for('static', filename='js/app.js') }}" defer></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,42 @@
+{# Plano cenital del coworking. estados: {numero: 'libre'|'ocupado'|'sel'|'nd'} #}
+{% macro plano(formas, espacios, estados=none, interactivo=false, clase='', uid='p') -%}
+<svg class="plano {{ clase }}{% if interactivo %} plano--live{% endif %}" viewBox="0 0 {{ mapa.VIEWBOX[0] }} {{ mapa.VIEWBOX[1] }}"
+     {% if interactivo %}role="group" aria-label="Plano de espacios de DeskFlex"{% else %}role="img" aria-label="Plano del coworking con salas, escritorios fijos y hot desks"{% endif %}>
+  <defs>
+    <pattern id="hatch-{{ uid }}" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="2" height="7" fill="#EF4444" fill-opacity=".38"/>
+    </pattern>
+  </defs>
+  {% for m in mapa.MESAS %}<rect class="mueble" x="{{ m.x }}" y="{{ m.y }}" width="{{ m.w }}" height="{{ m.h }}" rx="{{ m.r }}"/>{% endfor %}
+  {% for x in mapa.EXTRAS %}
+    <rect class="mueble" x="{{ x.x }}" y="{{ x.y }}" width="{{ x.w }}" height="{{ x.h }}" rx="10"/>
+    <text class="extra-t" x="{{ x.x + x.w/2 }}" y="{{ x.y + x.h/2 }}">{{ x.texto }}</text>
+  {% endfor %}
+  {% for z in mapa.ZONAS %}<text class="zona" x="{{ z[0] }}" y="{{ z[1] }}">{{ z[2] }}</text>{% endfor %}
+  {% for f in formas %}
+    {% set n = f.numero %}{% set e = espacios[n] %}{% set st = (estados or {}).get(n, 'libre') %}
+    {% set sel = st == 'sel' %}{% set est = 'libre' if sel else st %}
+    <g class="sp" data-num="{{ n }}" data-estado="{{ est }}" data-sel="{{ 'true' if sel else 'false' }}" data-nombre="{{ e.nombre }}"
+       {% if interactivo %}role="button" tabindex="0" aria-pressed="{{ 'true' if sel else 'false' }}" aria-label="{{ e.nombre }}, {{ est }}"{% endif %}>
+      <title>{{ e.nombre }}</title>
+      {% if f.forma == 'sala' %}
+        <rect class="shape" x="{{ f.x }}" y="{{ f.y }}" width="{{ f.w }}" height="{{ f.h }}" rx="14"/>
+        <rect class="hatch" x="{{ f.x }}" y="{{ f.y }}" width="{{ f.w }}" height="{{ f.h }}" rx="14" fill="url(#hatch-{{ uid }})"/>
+        <ellipse class="tbl" cx="{{ f.mesa.cx }}" cy="{{ f.mesa.cy }}" rx="{{ f.mesa.rx }}" ry="{{ f.mesa.ry }}"/>
+        {% for c in f.sillas %}<rect class="chair" x="{{ c[0] }}" y="{{ c[1] }}" width="{{ c[2] }}" height="{{ c[3] }}" rx="5"/>{% endfor %}
+        <text class="num num--big" x="{{ f.etiqueta[0] }}" y="{{ f.etiqueta[1] - 6 }}">{{ n }}</text>
+        <text class="sub" x="{{ f.etiqueta[0] }}" y="{{ f.etiqueta[1] + 18 }}">{{ e.capacidad }} pers.</text>
+      {% elif f.forma == 'escritorio' %}
+        {% for c in f.sillas %}<rect class="chair" x="{{ c[0] }}" y="{{ c[1] }}" width="{{ c[2] }}" height="{{ c[3] }}" rx="5"/>{% endfor %}
+        <rect class="shape" x="{{ f.x }}" y="{{ f.y }}" width="{{ f.w }}" height="{{ f.h }}" rx="10"/>
+        <rect class="hatch" x="{{ f.x }}" y="{{ f.y }}" width="{{ f.w }}" height="{{ f.h }}" rx="10" fill="url(#hatch-{{ uid }})"/>
+        <text class="num" x="{{ f.etiqueta[0] }}" y="{{ f.etiqueta[1] }}">{{ n }}</text>
+      {% else %}
+        <circle class="shape" cx="{{ f.cx }}" cy="{{ f.cy }}" r="{{ f.r }}"/>
+        <circle class="hatch" cx="{{ f.cx }}" cy="{{ f.cy }}" r="{{ f.r }}" fill="url(#hatch-{{ uid }})"/>
+        <text class="num" x="{{ f.cx }}" y="{{ f.cy }}">{{ n }}</text>
+      {% endif %}
+    </g>
+  {% endfor %}
+</svg>
+{%- endmacro %}

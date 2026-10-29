@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% macro err(k) %}{% if errores.get(k) %}<span class="error-text" id="e-{{ k }}">{{ icon('alert', 16) }}{{ errores[k] }}</span>{% endif %}{% endmacro %}
+{% block title %}Crear cuenta{% endblock %}
+{% block shell %}
+<div class="auth">
+  {% include "auth/_art.html" %}
+  <div class="auth-form">
+    <main id="contenido" class="auth-card">
+      <a class="brand" href="{{ url_for('auth.raiz') }}" aria-label="DeskFlex México">
+        <img src="{{ url_for('static', filename='img/logo-mark.png') }}" alt="" width="40" height="43">
+        <span><b>DeskFlex</b><small>México</small></span>
+      </a>
+      <h1>Registro</h1>
+      <p class="lead">Crea tu cuenta y reserva tu primer espacio.</p>
+      {% include "_flash.html" %}
+      <form method="post" novalidate>
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <div class="field">
+          <label for="nombre">Nombre completo</label>
+          <input class="input" id="nombre" name="nombre" autocomplete="name" placeholder="Carlos Pérez" value="{{ datos.nombre }}" required {% if errores.nombre %}aria-invalid="true" aria-describedby="e-nombre"{% endif %}>
+          {{ err('nombre') }}
+        </div>
+        <div class="field">
+          <label for="correo">Correo electrónico</label>
+          <input class="input" id="correo" name="correo" type="email" autocomplete="email" placeholder="tucorreo@ejemplo.com" value="{{ datos.correo }}" required {% if errores.correo %}aria-invalid="true" aria-describedby="e-correo"{% endif %}>
+          {{ err('correo') }}
+        </div>
+        <div class="field">
+          <label for="telefono">Teléfono</label>
+          <input class="input" id="telefono" name="telefono" type="tel" inputmode="numeric" autocomplete="tel-national" placeholder="55 4896 1012" value="{{ datos.telefono }}" required {% if errores.telefono %}aria-invalid="true" aria-describedby="e-telefono"{% endif %}>
+          {{ err('telefono') or '' }}
+        </div>
+        <div class="field">
+          <label for="password">Contraseña</label>
+          <div class="input-wrap">
+            <input class="input" id="password" name="password" type="password" autocomplete="new-password" placeholder="Mínimo 8 caracteres" required {% if errores.password %}aria-invalid="true" aria-describedby="e-password"{% endif %}>
+            <button type="button" class="icon-btn" data-toggle-pass="password" aria-label="Mostrar contraseña" aria-pressed="false">
+              <span class="i-on">{{ icon('eye', 20) }}</span><span class="i-off" hidden>{{ icon('eye-off', 20) }}</span>
+            </button>
+          </div>
+          {{ err('password') }}
+          {% if not errores.password %}<span class="hint">Usa letras y números, al menos 8 caracteres.</span>{% endif %}
+        </div>
+        <button class="btn btn--primary btn--block" type="submit">Crear cuenta</button>
+      </form>
+      <p class="switch">¿Ya tienes cuenta? <a href="{{ url_for('auth.login') }}">Inicia sesión</a></p>
+    </main>
+  </div>
+</div>
+{% endblock %}

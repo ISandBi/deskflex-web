@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% macro err(k) %}{% if errores.get(k) %}<span class="error-text" id="e-{{ k }}">{{ icon('alert', 16) }}{{ errores[k] }}</span>{% endif %}{% endmacro %}
+{% block title %}Editar perfil{% endblock %}
+{% block content %}
+<div class="page-head"><h1>Editar perfil</h1></div>
+<form class="card" method="post" style="max-width:640px" novalidate>
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <div class="form-row">
+    <div class="field"><label for="nombre">Nombre completo</label>
+      <input class="input" id="nombre" name="nombre" value="{{ datos.nombre }}" required {% if errores.nombre %}aria-invalid="true"{% endif %}>{{ err('nombre') }}</div>
+    <div class="field"><label for="telefono">Teléfono</label>
+      <input class="input" id="telefono" name="telefono" type="tel" inputmode="numeric" value="{{ datos.telefono }}" required {% if errores.telefono %}aria-invalid="true"{% endif %}>{{ err('telefono') }}</div>
+  </div>
+  <div class="field"><label for="correo">Correo</label>
+    <input class="input" id="correo" value="{{ user.correo }}" disabled><span class="hint">El correo es tu usuario y no se puede cambiar.</span></div>
+  <h3 style="margin:26px 0 4px">Cambiar contraseña</h3>
+  <p class="hint" style="margin-bottom:16px">Déjalo en blanco si no quieres cambiarla.</p>
+  <div class="form-row">
+    <div class="field"><label for="password_actual">Contraseña actual</label>
+      <input class="input" id="password_actual" name="password_actual" type="password" autocomplete="current-password" {% if errores.password_actual %}aria-invalid="true"{% endif %}>{{ err('password_actual') }}</div>
+    <div class="field"><label for="password_nueva">Nueva contraseña</label>
+      <input class="input" id="password_nueva" name="password_nueva" type="password" autocomplete="new-password" {% if errores.password_nueva %}aria-invalid="true"{% endif %}>{{ err('password_nueva') }}</div>
+  </div>
+  <div style="display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;margin-top:12px">
+    <a class="btn btn--ghost" href="{{ url_for('client.perfil') }}">Cancelar</a>
+    <button class="btn btn--primary" type="submit">Guardar cambios</button>
+  </div>
+</form>
+{% endblock %}

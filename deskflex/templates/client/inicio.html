@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% from "_plano.html" import plano %}
+{% from "client/_ticket.html" import ticket %}
+{% block title %}Inicio{% endblock %}
+{% block content %}
+<div class="greet">
+  <div>
+    <h1>Hola, {{ user.nombre|primer_nombre }}</h1>
+    <p>Bienvenido a DeskFlex México</p>
+  </div>
+  <a class="btn btn--accent" href="{{ url_for('client.reservar') }}">Ir a reservar {{ icon('arrow-right', 18) }}</a>
+</div>
+
+<section class="hero" aria-labelledby="hero-t">
+  <svg class="hex" viewBox="0 0 400 440" fill="none" aria-hidden="true"><path d="M200 24 372 122v196L200 416 28 318V122L200 24Z" stroke="#14B8A6" stroke-width="16" stroke-linejoin="round" opacity=".35"/><path d="M28 140 200 40l172 100" stroke="#4F46E5" stroke-width="16" stroke-linecap="round" stroke-linejoin="round" opacity=".7"/></svg>
+  <div>
+    <p class="eyebrow" style="color:#5EEAD4">Coworking · Ciudad de México</p>
+    <h2 id="hero-t" style="margin-top:14px">Tu espacio de trabajo, <em>cuando lo necesites</em></h2>
+    <div class="hero-chips">
+      {% if libres is not none %}
+        <span class="chip-stat"><b>{{ libres }}</b> de {{ total }} espacios libres ahora</span>
+      {% else %}
+        <span class="chip-stat"><b>{{ total }}</b> espacios para reservar</span>
+      {% endif %}
+      <span class="chip-stat">{{ icon('clock', 18) }} Lun a Sáb · 7:00 am – 9:00 pm</span>
+    </div>
+  </div>
+  {{ plano(formas, espacios, estados, clase='plano--art', uid='hero') }}
+</section>
+
+<div class="grid-2">
+  <section class="card" aria-labelledby="prox-t">
+    <div class="card-title"><h2 id="prox-t" style="font-size:1.3rem">Tu próxima reserva</h2>
+      {% if n_proximas > 1 %}<a href="{{ url_for('client.mis_reservas') }}">Ver las {{ n_proximas }}</a>{% endif %}</div>
+    {% if proxima %}
+      {{ ticket(proxima, false, csrf_token()) }}
+    {% else %}
+      <div class="empty">
+        <span class="ic-big">{{ icon('calendar', 26) }}</span>
+        <b>Aún no tienes reservas</b>
+        <p>Elige un escritorio o una sala y confirma en menos de un minuto.</p>
+        <a class="btn btn--primary" href="{{ url_for('client.reservar') }}">Reservar un espacio</a>
+      </div>
+    {% endif %}
+  </section>
+  <section class="card" aria-labelledby="como-t">
+    <div class="card-title"><h2 id="como-t" style="font-size:1.3rem">Así de simple</h2></div>
+    <ol class="steps">
+      <li><div><b>Elige cuándo</b><span>Por hora o por día completo, en el calendario.</span></div></li>
+      <li><div><b>Toca tu espacio en el mapa</b><span>Los lugares ocupados se bloquean solos: nunca hay reservas duplicadas.</span></div></li>
+      <li><div><b>Muestra tu código QR</b><span>En recepción lo escanean y registran tu entrada al instante.</span></div></li>
+    </ol>
+  </section>
+</div>
+{% endblock %}

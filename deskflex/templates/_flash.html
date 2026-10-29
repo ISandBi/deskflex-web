@@ -1,0 +1,12 @@
+{% from "_icons.html" import icon %}
+{% with msgs = get_flashed_messages(with_categories=true) %}
+{% if msgs %}
+<div class="alerts" role="status" aria-live="polite">
+  {% for cat, msg in msgs %}
+  <div class="alert alert--{{ 'error' if cat == 'error' else ('success' if cat == 'success' else 'info') }}">
+    {{ icon('check-circle' if cat == 'success' else ('alert' if cat == 'error' else 'info'), 20) }}<span>{{ msg }}</span>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endwith %}

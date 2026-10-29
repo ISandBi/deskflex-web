@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% from "_plano.html" import plano %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Hola, {{ user.nombre|primer_nombre }}</h1><p>Bienvenido a DeskFlex México · {{ hoy_txt if hoy_txt else '' }}Así va el coworking hoy.</p></div>
+  <a class="btn btn--accent" href="{{ url_for('admin.checkin') }}">{{ icon('scan', 18) }} Registrar acceso</a>
+</div>
+
+<section class="kpis" aria-label="Indicadores de hoy">
+  <div class="kpi"><span class="ic-badge">{{ icon('list', 20) }}</span><small>Reservas de hoy</small><b>{{ kpis.reservas_hoy }}</b><span>{{ kpis.pendientes }} por atender</span></div>
+  <div class="kpi"><span class="ic-badge">{{ icon('desk', 20) }}</span><small>Ocupación ahora</small>
+    {% if kpis.abierto %}<b>{{ kpis.ocupados }}<i> / {{ kpis.total }}</i></b>
+      <div class="meter" role="img" aria-label="{{ kpis.ocupados }} de {{ kpis.total }} espacios ocupados"><i style="width:{{ (kpis.ocupados / kpis.total * 100)|round|int }}%"></i></div>
+    {% else %}<b style="font-size:1.4rem;padding-top:10px">Cerrado</b><span>Fuera de horario</span>{% endif %}</div>
+  <div class="kpi"><span class="ic-badge">{{ icon('door', 20) }}</span><small>Accesos autorizados</small><b>{{ kpis.accesos_hoy }}</b><span>{{ kpis.denegados_hoy }} denegado{{ '' if kpis.denegados_hoy == 1 else 's' }} hoy</span></div>
+  <div class="kpi"><span class="ic-badge">{{ icon('users', 20) }}</span><small>Clientes activos</small><b>{{ kpis.clientes }}</b><span><a href="{{ url_for('admin.usuarios') }}">Ver usuarios</a></span></div>
+</section>
+
+<div class="dash-grid">
+  <section class="card" aria-labelledby="ag-t">
+    <div class="card-title"><h2 id="ag-t" style="font-size:1.3rem">Agenda de hoy</h2><a href="{{ url_for('admin.reservas') }}">Todas las reservas</a></div>
+    {% if agenda %}
+    <ul class="agenda">
+      {% for a in agenda %}
+      <li>
+        <span class="t">{{ a|rango if a.modo == 'hora' else 'Día completo' }}</span>
+        <div><b>{{ a.cliente }}</b><small>{{ a.espacio }} · <span class="mono">{{ a.folio }}</span></small></div>
+        <span class="badge badge--{{ a.estado_clave }}">{{ a.estado_txt }}</span>
+      </li>
+      {% endfor %}
+    </ul>
+    {% else %}
+    <div class="empty"><span class="ic-big">{{ icon('calendar', 26) }}</span><b>Sin reservas para hoy</b><p>Cuando haya reservas aparecerán aquí.</p></div>
+    {% endif %}
+  </section>
+  <section class="card" aria-labelledby="oc-t">
+    <div class="card-title"><h2 id="oc-t" style="font-size:1.3rem">Ocupación ahora</h2>
+      {% if estados %}<span class="muted" style="font-size:.9rem">{{ hora_actual|hora }} – {{ (hora_actual + 1)|hora }}</span>{% endif %}</div>
+    <div class="map-frame">{{ plano(formas, espacios, estados if estados else {}, clase='', uid='dash') }}</div>
+    <div class="legend" style="margin-top:14px"><span><i class="l-libre"></i>Libre</span><span><i class="l-ocupado"></i>Reservado</span></div>
+  </section>
+</div>
+{% endblock %}

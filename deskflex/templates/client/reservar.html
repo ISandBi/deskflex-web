@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% from "_plano.html" import plano %}
+{% block title %}Reservar espacio{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Reservar espacio</h1><p>Elige cuándo vienes y toca tu lugar en el mapa. La reserva se confirma al instante.</p></div>
+</div>
+<form method="post" id="booking-form" class="booking"
+      data-url="{{ url_for('api.disponibilidad') }}" data-hoy="{{ hoy }}" data-inicial="{{ inicial }}" data-max="{{ maximo }}"
+      data-cerrados="{{ cerrados|tojson|forceescape }}" data-apertura="{{ apertura }}" data-cierre="{{ cierre }}">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+  <input type="hidden" name="espacio" id="f-espacio"><input type="hidden" name="fecha" id="f-fecha">
+  <input type="hidden" name="modo" id="f-modo"><input type="hidden" name="inicio" id="f-inicio"><input type="hidden" name="fin" id="f-fin">
+
+  <section class="card" aria-labelledby="s1">
+    <div class="step-head"><span class="step-n">1</span><h2 id="s1" style="font-size:1.25rem">Elige cuándo</h2></div>
+    <div class="seg" role="radiogroup" aria-label="Tipo de reserva">
+      <input type="radio" name="modo_ui" id="m-hora" value="hora" checked><label for="m-hora">{{ icon('clock', 18) }} Por hora</label>
+      <input type="radio" name="modo_ui" id="m-dia" value="dia"><label for="m-dia">{{ icon('calendar', 18) }} Día completo</label>
+    </div>
+    <div class="cal" style="margin-top:22px">
+      <div class="cal-head">
+        <button type="button" class="icon-btn" id="cal-prev" aria-label="Mes anterior">{{ icon('chev-l', 18) }}</button>
+        <b id="cal-title" aria-live="polite"></b>
+        <button type="button" class="icon-btn" id="cal-next" aria-label="Mes siguiente">{{ icon('chev-r', 18) }}</button>
+      </div>
+      <div class="cal-grid" id="cal-grid"></div>
+    </div>
+    <div id="hours-wrap" style="margin-top:24px">
+      <p class="label" style="margin-bottom:10px">Horario <span class="hint" style="font-weight:500">· toca una hora y otra más para extenderlo</span></p>
+      <div class="chips" id="hours"></div>
+      <div class="range-note" id="range-note">{{ icon('clock', 18) }}<span></span></div>
+    </div>
+    <div class="range-note" id="day-note" hidden>{{ icon('clock', 18) }}<span>Todo el día: de {{ apertura|hora }} a {{ cierre|hora }}</span></div>
+  </section>
+
+  <section class="card map-card" aria-labelledby="s2">
+    <div class="step-head"><span class="step-n">2</span><h2 id="s2" style="font-size:1.25rem">Elige tu espacio</h2></div>
+    <div class="map-top">
+      <div class="legend" aria-label="Leyenda del mapa">
+        <span><i class="l-libre"></i>Disponible</span><span><i class="l-ocupado"></i>Reservado</span><span><i class="l-sel"></i>Seleccionado</span>
+      </div>
+    </div>
+    <div class="map-frame" id="map-frame">{{ plano(formas, espacios, none, true, uid='live') }}</div>
+    <div class="alert alert--info mapmsg" id="map-msg" role="status" hidden>{{ icon('info', 20) }}<span></span></div>
+    <div class="zone-info">
+      <span><b>Salas de juntas</b> 1 (18 personas) y 2 (10 personas)</span>
+      <span><b>Escritorios fijos</b> 3 a 9</span>
+      <span><b>Hot desks</b> 10 a 25</span>
+    </div>
+    <div class="summary">
+      <dl aria-live="polite">
+        <div><dt>Espacio</dt><dd id="sum-espacio" class="is-empty">Toca uno en el mapa</dd></div>
+        <div><dt>Fecha</dt><dd id="sum-fecha"></dd></div>
+        <div><dt>Horario</dt><dd id="sum-horario" class="is-empty">Elige una hora</dd></div>
+      </dl>
+      <button class="btn btn--accent" id="btn-confirm" type="submit" disabled>{{ icon('check', 18) }} Confirmar reserva</button>
+    </div>
+  </section>
+</form>
+{% endblock %}
+{% block scripts %}<script src="{{ url_for('static', filename='js/reservar.js') }}" defer></script>{% endblock %}

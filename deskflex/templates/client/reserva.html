@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% block title %}Pase {{ r.folio }}{% endblock %}
+{% block content %}
+<div class="page-head" style="max-width:920px;margin-inline:auto">
+  <div><h1>Tu código QR</h1><p>Muestra este código en la entrada para registrar tu acceso.</p></div>
+</div>
+<section class="pass" aria-label="Pase de acceso {{ r.folio }}">
+  <div class="pass-qr">
+    <div class="qr-box">{{ r.qr|safe }}</div>
+    <span class="folio" style="background:rgba(255,255,255,.1);color:#fff">{{ r.folio }}</span>
+    <p>Sube el brillo de tu pantalla al escanear.</p>
+  </div>
+  <div class="pass-info">
+    <div style="display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap">
+      <h2>Mi acceso</h2><span class="badge badge--{{ r.estado_clave }}">{{ r.estado_txt }}</span>
+    </div>
+    <dl>
+      <div class="wide"><dt>Lugar</dt><dd>{{ r.espacio }}</dd></div>
+      <div><dt>Fecha</dt><dd>{{ r.fecha|fecha }}</dd></div>
+      <div><dt>Hora</dt><dd>{{ r|rango }}</dd></div>
+      <div><dt>Folio</dt><dd class="mono" style="font-weight:600">{{ r.folio }}</dd></div>
+      {% if user.rol == 'admin' %}<div><dt>Cliente</dt><dd>{{ r.cliente }}</dd></div>{% endif %}
+    </dl>
+    {% if r.estado_clave in ('confirmada', 'encurso') %}
+    <div class="note">{{ icon('info', 18) }}<span>El código es válido desde {{ config.CHECKIN_EARLY_MIN }} minutos antes de tu hora de entrada y solo se puede usar una vez.</span></div>
+    {% endif %}
+    <div class="pass-actions">
+      <a class="btn btn--primary" href="{{ url_for('client.mis_reservas') if user.rol != 'admin' else url_for('admin.reservas') }}">Mis reservas</a>
+      <a class="btn btn--outline" href="{{ url_for('client.reserva_qr', folio=r.folio) }}" download>{{ icon('download', 18) }} Descargar QR</a>
+      {% if r.estado_clave == 'confirmada' and user.id == r.usuario_id %}
+      <form method="post" action="{{ url_for('client.cancelar', folio=r.folio) }}" data-confirm="Se liberará {{ r.espacio }} y tu código QR dejará de funcionar." data-confirm-title="¿Cancelar la reserva {{ r.folio }}?" data-confirm-ok="Sí, cancelar">
+        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+        <button class="btn btn--danger" type="submit">Cancelar reserva</button>
+      </form>
+      {% endif %}
+    </div>
+  </div>
+</section>
+{% endblock %}

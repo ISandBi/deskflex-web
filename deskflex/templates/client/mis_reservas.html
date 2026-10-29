@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% from "_icons.html" import icon %}
+{% from "client/_ticket.html" import ticket %}
+{% block title %}Mis reservas{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><h1>Mis reservas</h1><p>Tus pases de acceso, con el código QR listo para escanear.</p></div>
+  <a class="btn btn--accent" href="{{ url_for('client.reservar') }}">{{ icon('plus', 18) }} Nueva reserva</a>
+</div>
+<div class="section-title" style="margin-top:0"><h2>Próximas</h2><span>{{ activas|length }}</span></div>
+{% if activas %}
+  <div class="tickets">{% for r in activas %}{{ ticket(r, false, csrf_token()) }}{% endfor %}</div>
+{% else %}
+  <div class="card"><div class="empty"><span class="ic-big">{{ icon('qr', 26) }}</span><b>No tienes reservas próximas</b>
+    <p>Cuando reserves, tu pase aparecerá aquí.</p><a class="btn btn--primary" href="{{ url_for('client.reservar') }}">Reservar ahora</a></div></div>
+{% endif %}
+{% if historial %}
+<div class="section-title"><h2>Historial</h2><span>{{ historial|length }}</span></div>
+<div class="tickets">{% for r in historial %}{{ ticket(r, true, csrf_token()) }}{% endfor %}</div>
+{% endif %}
+{% endblock %}
