@@ -11,22 +11,19 @@ ESPACIOS = (  # numero, nombre, tipo, capacidad
 
 
 def _sala1():
-    chairs = []
-    for i in range(8):
-        x = 70 + i * 43
-        chairs += [(x, 50, 22, 12), (x, 162, 22, 12)]
-    chairs += [(36, 106, 12, 22), (400, 106, 12, 22)]
+    # numeración: 1-8 fila superior, 9-16 fila inferior, 17 cabecera izquierda, 18 cabecera derecha
+    arriba = [(66 + i * 43, 46, 24, 16) for i in range(8)]
+    abajo = [(66 + i * 43, 162, 24, 16) for i in range(8)]
+    chairs = arriba + abajo + [(34, 100, 16, 24), (398, 100, 16, 24)]
     return dict(numero=1, forma="sala", x=24, y=24, w=400, h=176,
-                mesa=dict(cx=224, cy=112, rx=150, ry=34), sillas=chairs,
-                etiqueta=(224, 112))
+                mesa=dict(cx=224, cy=112, rx=150, ry=34), sillas=chairs, etiqueta=(224, 112))
 
 
 def _sala2():
-    chairs = []
-    for i in range(4):
-        y = 76 + i * 40
-        chairs += [(466, y, 12, 22), (570, y, 12, 22)]
-    chairs += [(511, 40, 22, 12), (511, 222, 22, 12)]
+    # 1-4 columna izquierda, 5-8 columna derecha, 9 arriba, 10 abajo
+    izq = [(462, 70 + i * 40, 16, 24) for i in range(4)]
+    der = [(566, 70 + i * 40, 16, 24) for i in range(4)]
+    chairs = izq + der + [(512, 38, 24, 16), (512, 216, 24, 16)]
     return dict(numero=2, forma="sala", x=448, y=24, w=148, h=232,
                 mesa=dict(cx=524, cy=140, rx=30, ry=78), sillas=chairs, etiqueta=(524, 140))
 

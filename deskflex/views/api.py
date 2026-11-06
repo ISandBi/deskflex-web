@@ -20,7 +20,7 @@ def disponibilidad():
     except rules.ReglaError as e:
         out["mensaje"] = str(e)
     else:
-        out["estados"] = rules.disponibilidad(db, f, ini, fin)
+        out["estados"], out["asientos"] = rules.disponibilidad_completa(db, f, ini, fin)
         out["ventana"] = {"fecha": f, "inicio": ini, "fin": fin, "texto": rules.fmt_rango(ini, fin)}
     # Horas del día: pasadas o ya ocupadas por el propio usuario
     try:

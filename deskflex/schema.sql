@@ -29,6 +29,7 @@ CREATE TABLE IF NOT EXISTS reservas (
     fecha       TEXT    NOT NULL,              -- YYYY-MM-DD
     hora_inicio INTEGER NOT NULL,              -- 0-23
     hora_fin    INTEGER NOT NULL,              -- 1-24, > hora_inicio
+    asiento     INTEGER,                       -- silla dentro de una sala; NULL = espacio/sala completa
     modo        TEXT    NOT NULL CHECK (modo IN ('hora','dia')),
     estado      TEXT    NOT NULL DEFAULT 'confirmada' CHECK (estado IN ('confirmada','cancelada')),
     token       TEXT    NOT NULL UNIQUE,       -- el QR solo contiene este token

@@ -61,6 +61,19 @@
     }));
   }
 
+  // Botón con indicador de carga al enviar
+  document.querySelectorAll('form').forEach((f) => f.addEventListener('submit', () => {
+    setTimeout(() => { if (!f.hasAttribute('data-confirm') || f.dataset.confirmed) { const b = f.querySelector('button[type=submit].btn'); if (b && !b.disabled) b.classList.add('is-busy'); } }, 0);
+  }));
+  window.addEventListener('pageshow', () => document.querySelectorAll('.is-busy').forEach((b) => b.classList.remove('is-busy')));
+
+  // Números que cuentan hacia arriba (KPIs)
+  document.querySelectorAll('[data-count]').forEach((el) => {
+    const to = Number(el.dataset.count); if (!to) return; const t0 = performance.now();
+    const tick = (t) => { const k = Math.min(1, (t - t0) / 900); el.firstChild.textContent = Math.round(to * (1 - Math.pow(1 - k, 3))); if (k < 1) requestAnimationFrame(tick); };
+    requestAnimationFrame(tick);
+  });
+
   // Filtros que se aplican al cambiar
   document.querySelectorAll('[data-autosubmit]').forEach((el) => el.addEventListener('change', () => el.form.submit()));
 })();

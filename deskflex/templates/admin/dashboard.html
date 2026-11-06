@@ -9,13 +9,13 @@
 </div>
 
 <section class="kpis" aria-label="Indicadores de hoy">
-  <div class="kpi"><span class="ic-badge">{{ icon('list', 20) }}</span><small>Reservas de hoy</small><b>{{ kpis.reservas_hoy }}</b><span>{{ kpis.pendientes }} por atender</span></div>
+  <div class="kpi"><span class="ic-badge">{{ icon('list', 20) }}</span><small>Reservas de hoy</small><b data-count="{{ kpis.reservas_hoy }}">{{ kpis.reservas_hoy }}</b><span>{{ kpis.pendientes }} por atender</span></div>
   <div class="kpi"><span class="ic-badge">{{ icon('desk', 20) }}</span><small>Ocupación ahora</small>
     {% if kpis.abierto %}<b>{{ kpis.ocupados }}<i> / {{ kpis.total }}</i></b>
       <div class="meter" role="img" aria-label="{{ kpis.ocupados }} de {{ kpis.total }} espacios ocupados"><i style="width:{{ (kpis.ocupados / kpis.total * 100)|round|int }}%"></i></div>
     {% else %}<b style="font-size:1.4rem;padding-top:10px">Cerrado</b><span>Fuera de horario</span>{% endif %}</div>
-  <div class="kpi"><span class="ic-badge">{{ icon('door', 20) }}</span><small>Accesos autorizados</small><b>{{ kpis.accesos_hoy }}</b><span>{{ kpis.denegados_hoy }} denegado{{ '' if kpis.denegados_hoy == 1 else 's' }} hoy</span></div>
-  <div class="kpi"><span class="ic-badge">{{ icon('users', 20) }}</span><small>Clientes activos</small><b>{{ kpis.clientes }}</b><span><a href="{{ url_for('admin.usuarios') }}">Ver usuarios</a></span></div>
+  <div class="kpi"><span class="ic-badge">{{ icon('door', 20) }}</span><small>Accesos autorizados</small><b data-count="{{ kpis.accesos_hoy }}">{{ kpis.accesos_hoy }}</b><span>{{ kpis.denegados_hoy }} denegado{{ '' if kpis.denegados_hoy == 1 else 's' }} hoy</span></div>
+  <div class="kpi"><span class="ic-badge">{{ icon('users', 20) }}</span><small>Clientes activos</small><b data-count="{{ kpis.clientes }}">{{ kpis.clientes }}</b><span><a href="{{ url_for('admin.usuarios') }}">Ver usuarios</a></span></div>
 </section>
 
 <div class="dash-grid">

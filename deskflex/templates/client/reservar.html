@@ -6,12 +6,15 @@
 <div class="page-head">
   <div><h1>Reservar espacio</h1><p>Elige cuándo vienes y toca tu lugar en el mapa. La reserva se confirma al instante.</p></div>
 </div>
+<ol class="stepper" id="stepper" aria-label="Progreso de tu reserva">
+  <li class="now" data-s="1"><i>1</i>Elige cuándo</li><li data-s="2"><i>2</i>Elige tu lugar</li><li data-s="3"><i>3</i>Confirma</li>
+</ol>
 <form method="post" id="booking-form" class="booking"
       data-url="{{ url_for('api.disponibilidad') }}" data-hoy="{{ hoy }}" data-inicial="{{ inicial }}" data-max="{{ maximo }}"
       data-cerrados="{{ cerrados|tojson|forceescape }}" data-apertura="{{ apertura }}" data-cierre="{{ cierre }}">
   <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
   <input type="hidden" name="espacio" id="f-espacio"><input type="hidden" name="fecha" id="f-fecha">
-  <input type="hidden" name="modo" id="f-modo"><input type="hidden" name="inicio" id="f-inicio"><input type="hidden" name="fin" id="f-fin">
+  <input type="hidden" name="asiento" id="f-asiento"><input type="hidden" name="modo" id="f-modo"><input type="hidden" name="inicio" id="f-inicio"><input type="hidden" name="fin" id="f-fin">
 
   <section class="card" aria-labelledby="s1">
     <div class="step-head"><span class="step-n">1</span><h2 id="s1" style="font-size:1.25rem">Elige cuándo</h2></div>
@@ -37,17 +40,20 @@
 
   <section class="card map-card" aria-labelledby="s2">
     <div class="step-head"><span class="step-n">2</span><h2 id="s2" style="font-size:1.25rem">Elige tu espacio</h2></div>
+    <div class="hint-bar"><span>{{ icon('pin', 17) }} Toca un escritorio o una <b>silla</b> de las mesas grandes</span><span>{{ icon('users', 17) }} Toca la mesa para apartar la <b>sala completa</b></span></div>
     <div class="map-top">
       <div class="legend" aria-label="Leyenda del mapa">
-        <span><i class="l-libre"></i>Disponible</span><span><i class="l-ocupado"></i>Reservado</span><span><i class="l-sel"></i>Seleccionado</span>
+        <span><i class="l-libre"></i>Disponible</span><span><i class="l-ocupado"></i>Apartado por alguien</span><span><i class="l-sel"></i>Seleccionado</span>
       </div>
     </div>
+    <div class="map-tip" id="map-tip" role="tooltip"></div>
     <div class="map-frame" id="map-frame">{{ plano(formas, espacios, none, true, uid='live') }}</div>
     <div class="alert alert--info mapmsg" id="map-msg" role="status" hidden>{{ icon('info', 20) }}<span></span></div>
-    <div class="zone-info">
-      <span><b>Salas de juntas</b> 1 (18 personas) y 2 (10 personas)</span>
-      <span><b>Escritorios fijos</b> 3 a 9</span>
-      <span><b>Hot desks</b> 10 a 25</span>
+    <div class="zones" aria-live="polite">
+      <span class="zone-chip" data-zone="salas">Salas <b>–</b> sillas libres</span>
+      <span class="zone-chip" data-zone="fijo">Escritorios fijos <b>–</b> libres</span>
+      <span class="zone-chip" data-zone="hot">Hot desks <b>–</b> libres</span>
+      <span class="zone-chip" id="live-chip" title="El mapa se actualiza solo cuando otra persona reserva">{{ icon('zap', 15) }} En vivo</span>
     </div>
     <div class="summary">
       <dl aria-live="polite">

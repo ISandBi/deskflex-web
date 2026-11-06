@@ -24,3 +24,11 @@ Horario 7–21 h, domingo cerrado, 60 días de anticipación, QR válido desde 3
 
 ## Pendiente vs. documentación
 Usa SQLite y CSS propio (sin Bootstrap) porque en el entorno de construcción no se podían instalar paquetes. Migrar a PostgreSQL/Flask-SQLAlchemy queda pendiente; el SQL está en `schema.sql`, `rules.py` y `views/`.
+
+## Cámara del check-in
+Abre el sistema con `http://127.0.0.1:5000` o `https://` (el navegador no da cámara en otras direcciones http).
+El decodificador de QR usa `BarcodeDetector` del navegador o, si no existe, jsQR desde internet. Para usarlo sin internet,
+guarda `jsQR.js` en `deskflex/static/vendor/jsQR.js`.
+
+## Base de datos existente
+Si ya tenías `instance/deskflex.db`, se actualiza sola al arrancar (agrega la columna de asientos); no hace falta borrarla.

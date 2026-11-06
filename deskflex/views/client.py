@@ -12,7 +12,8 @@ from .auth import validar_password, validar_telefono
 bp = Blueprint("client", __name__)
 
 SELECT_RESERVA = """
-    SELECT r.*, e.nombre AS espacio, e.numero AS esp_numero, e.tipo AS esp_tipo, u.nombre AS cliente,
+    SELECT r.*, e.nombre || CASE WHEN r.asiento IS NOT NULL THEN ' · asiento ' || r.asiento ELSE '' END AS espacio,
+           e.numero AS esp_numero, e.tipo AS esp_tipo, u.nombre AS cliente,
            EXISTS (SELECT 1 FROM accesos a WHERE a.reserva_id = r.id AND a.resultado = 'autorizado') AS con_acceso
     FROM reservas r JOIN espacios e ON e.id = r.espacio_id JOIN usuarios u ON u.id = r.usuario_id
 """
@@ -43,7 +44,7 @@ def inicio():
     cfg = current_app.config
     if cfg["OPEN_HOUR"] <= h < cfg["CLOSE_HOUR"] and ahora.weekday() not in cfg["CLOSED_WEEKDAYS"]:
         disp = rules.disponibilidad(db, ahora.date().isoformat(), h, h + 1)
-        libres = sum(1 for v in disp.values() if v == "libre")
+        libres = sum(1 for v in disp.values() if v != "ocupado")
         total = len(disp)
         estados = disp
     else:
@@ -66,7 +67,7 @@ def reservar():
             if not esp:
                 raise rules.ReglaError("Selecciona un espacio en el mapa.")
             rid = rules.crear_reserva(db, g.user["id"], esp["id"], f.get("fecha"), f.get("modo"),
-                                      f.get("inicio"), f.get("fin"))
+                                      f.get("inicio"), f.get("fin"), f.get("asiento", type=int))
         except ValueError:
             flash("Selecciona un espacio en el mapa.", "error")
         except rules.ReglaError as e:

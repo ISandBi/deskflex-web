@@ -16,16 +16,24 @@
   {% for f in formas %}
     {% set n = f.numero %}{% set e = espacios[n] %}{% set st = (estados or {}).get(n, 'libre') %}
     {% set sel = st == 'sel' %}{% set est = 'libre' if sel else st %}
-    <g class="sp" data-num="{{ n }}" data-estado="{{ est }}" data-sel="{{ 'true' if sel else 'false' }}" data-nombre="{{ e.nombre }}"
-       {% if interactivo %}role="button" tabindex="0" aria-pressed="{{ 'true' if sel else 'false' }}" aria-label="{{ e.nombre }}, {{ est }}"{% endif %}>
+    <g class="sp" data-num="{{ n }}" data-estado="{{ est }}" data-sel="{{ 'true' if sel else 'false' }}" data-nombre="{{ e.nombre }}" style="--i:{{ loop.index0 }}"
+       {% if interactivo and f.forma == 'sala' %}role="group" tabindex="0" aria-label="{{ e.nombre }}. Enter reserva la sala completa; Tab para elegir una silla"
+       {% elif interactivo %}role="button" tabindex="0" aria-pressed="{{ 'true' if sel else 'false' }}" aria-label="{{ e.nombre }}, {{ est }}"{% endif %}>
       <title>{{ e.nombre }}</title>
       {% if f.forma == 'sala' %}
         <rect class="shape" x="{{ f.x }}" y="{{ f.y }}" width="{{ f.w }}" height="{{ f.h }}" rx="14"/>
         <rect class="hatch" x="{{ f.x }}" y="{{ f.y }}" width="{{ f.w }}" height="{{ f.h }}" rx="14" fill="url(#hatch-{{ uid }})"/>
         <ellipse class="tbl" cx="{{ f.mesa.cx }}" cy="{{ f.mesa.cy }}" rx="{{ f.mesa.rx }}" ry="{{ f.mesa.ry }}"/>
-        {% for c in f.sillas %}<rect class="chair" x="{{ c[0] }}" y="{{ c[1] }}" width="{{ c[2] }}" height="{{ c[3] }}" rx="5"/>{% endfor %}
         <text class="num num--big" x="{{ f.etiqueta[0] }}" y="{{ f.etiqueta[1] - 6 }}">{{ n }}</text>
-        <text class="sub" x="{{ f.etiqueta[0] }}" y="{{ f.etiqueta[1] + 18 }}">{{ e.capacidad }} pers.</text>
+        <text class="sub" x="{{ f.etiqueta[0] }}" y="{{ f.etiqueta[1] + 18 }}">{% if interactivo %}sala completa{% else %}{{ e.capacidad }} pers.{% endif %}</text>
+        {% for c in f.sillas %}
+        <g class="seat" data-asiento="{{ loop.index }}" data-estado="libre" data-sel="false" style="--i:{{ loop.index0 }}"
+           {% if interactivo %}role="button" tabindex="0" aria-pressed="false" aria-label="{{ e.nombre }}, asiento {{ loop.index }}, disponible"{% endif %}>
+          <title>{{ e.nombre }} · asiento {{ loop.index }}</title>
+          <rect class="chair" x="{{ c[0] }}" y="{{ c[1] }}" width="{{ c[2] }}" height="{{ c[3] }}" rx="6"/>
+          <text class="snum" x="{{ c[0] + c[2] / 2 }}" y="{{ c[1] + c[3] / 2 + 0.5 }}">{{ loop.index }}</text>
+        </g>
+        {% endfor %}
       {% elif f.forma == 'escritorio' %}
         {% for c in f.sillas %}<rect class="chair" x="{{ c[0] }}" y="{{ c[1] }}" width="{{ c[2] }}" height="{{ c[3] }}" rx="5"/>{% endfor %}
         <rect class="shape" x="{{ f.x }}" y="{{ f.y }}" width="{{ f.w }}" height="{{ f.h }}" rx="10"/>

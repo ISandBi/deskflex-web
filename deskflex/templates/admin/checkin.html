@@ -19,11 +19,17 @@
     </div>
     {% endif %}
     <div class="scanner" id="scanner">
-      <div id="reader"></div>
+      <video id="cam" playsinline muted hidden></video>
       <span class="corner c1"></span><span class="corner c2"></span><span class="corner c3"></span><span class="corner c4"></span>
-      <div id="scanner-idle" style="padding:20px;display:grid;gap:10px;justify-items:center">{{ icon('camera', 34) }}<span style="max-width:24ch">Apunta la cámara al código QR del cliente</span>
-        <button class="btn btn--accent btn--sm" type="button" id="btn-cam">Activar cámara</button></div>
+      <span class="scanline"></span>
+      <div id="scanner-idle" style="padding:20px;display:grid;gap:10px;justify-items:center">{{ icon('camera', 34) }}<span style="max-width:24ch">Apunta la cámara al código QR del cliente</span></div>
     </div>
+    <div class="cam-bar">
+      <button class="btn btn--accent btn--sm" type="button" id="btn-cam">{{ icon('camera', 17) }} <span>Activar cámara</span></button>
+      <select class="select" id="cam-select" aria-label="Elegir cámara" style="width:auto;min-height:38px;flex:1;min-width:150px" hidden></select>
+    </div>
+    <div class="cam-status" id="cam-status" role="status" aria-live="polite" hidden></div>
+    <div class="scan-result" id="scan-result" role="status" aria-live="assertive" hidden></div>
     <div class="or">o captura el folio</div>
     <form id="form-codigo" method="post" action="{{ url_for('admin.checkin_validar') }}">
       <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
@@ -31,7 +37,6 @@
         <input class="input mono" id="codigo" name="codigo" placeholder="DF-001" autocomplete="off" autocapitalize="characters" value="{{ previo.codigo if previo else '' }}" required></div>
       <button class="btn btn--primary btn--block" type="submit">{{ icon('door', 18) }} Registrar entrada</button>
     </form>
-    <div class="scan-result" id="scan-result" role="status" aria-live="assertive" hidden></div>
     <p class="hint" style="margin-top:14px">El código vale desde {{ early }} min antes de la hora de inicio y solo se puede usar una vez. Cada intento queda registrado.</p>
   </section>
 
@@ -66,6 +71,5 @@
 </div>
 {% endblock %}
 {% block scripts %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html5-qrcode/2.3.8/html5-qrcode.min.js" defer></script>
 <script src="{{ url_for('static', filename='js/checkin.js') }}" defer></script>
 {% endblock %}

@@ -147,7 +147,7 @@ def checkin():
     db = get_db()
     fecha = request.args.get("fecha") or rules.today().isoformat()
     esp = request.args.get("espacio", type=int)
-    sql = """SELECT a.*, u.nombre AS cliente, e.nombre AS espacio, r.folio
+    sql = """SELECT a.*, u.nombre AS cliente, e.nombre || CASE WHEN r.asiento IS NOT NULL THEN ' · asiento ' || r.asiento ELSE '' END AS espacio, r.folio
              FROM accesos a LEFT JOIN reservas r ON r.id = a.reserva_id
              LEFT JOIN usuarios u ON u.id = r.usuario_id LEFT JOIN espacios e ON e.id = r.espacio_id
              WHERE substr(a.registrado_en, 1, 10) = ?"""
@@ -174,7 +174,7 @@ def checkin():
 @bp.route("/checkin/validar", methods=["POST"])
 @admin_required
 def checkin_validar():
-    res = rules.validar_acceso(get_db(), request.form.get("codigo", ""), g.user["id"])
+    res = rules.validar_acceso(get_db(), request.form.get("codigo", ""), g.user["id"], request.form.get("forzar") == "1")
     if request.headers.get("X-Requested-With") == "fetch":
         return jsonify(res)
     flash(f"Acceso autorizado: {res['cliente']} · {res['espacio']}." if res["ok"] else f"Acceso denegado. {res['motivo']}",
